@@ -12,12 +12,19 @@ import re
 import sys
 import os
 import bs4
-
+import requests
 
 
 args = sys.argv
 term = ""
 subject = ""
+
+#parse for terms and subjects
+url = requests.get("http://www2.monmouth.edu/muwebadv/wa3/search/SearchClassesV2.aspx")
+content = url.text
+search_page_soup = bs4.BeautifulSoup(content, "lxml")
+terms = search_page_soup.find('select', {'id': '_ctl0_MainContent_ddlTerm'}).select('option')
+subjects = search_page_soup.find('select', {'id': '_ctl0_MainContent_ddlSubj_1'}).select('option')
 
 for eacharg in args:
 	if (re.search('-.*$', eacharg)):
@@ -28,13 +35,19 @@ for eacharg in args:
 			print ("  * -terms        : list currently available Terms")
 			print ("  * -subjects     : list currently available Subjects")
 		elif (eacharg == "-terms"):
-			print ("TERMS PLACEHOLDER")
+			print ("!!! The term to be used is before the dash !!!")
+			for eachterm in terms:
+				print(eachterm.getText())
+			print ("!!! The term to be used is before the dash !!!")
 		elif (eacharg == "-subjects"):
-			print ("SUBJECTS PLACEHOLDER")
+			print ("!!! The code to be used is in parenthesis !!!")
+			for eachsubject in subjects:
+				print (eachsubject.getText())
+			print ("!!! The code to be used is in parenthesis !!!")
 		else:
 			sys.exit("Invalid option")
-	elif (eacharg != os.path.basename(__file__)): #The first param will be the script name
-												  #and we dont want that.
+	elif not (os.path.basename(__file__)) in eacharg: #The first param will be the script name
+												      #and we dont want that.
 		if (term == ""):
 			term = eacharg
 		elif (subject == ""):
